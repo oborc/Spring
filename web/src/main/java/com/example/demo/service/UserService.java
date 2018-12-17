@@ -74,12 +74,17 @@ public class UserService {
         List<Court> courts = courtMapper.select(courtTemplate);
         for(Court court:courts)
         {
+            if(courtCache.get(court.getId(),Court.class)!=null)
+            {
+                continue;
+            }
             Court courtTobeCached = selectOneCourt(court.getId());
             courtCache.put(court.getId(),courtTobeCached);
             LOG.info("in cache court async method ...");
         }
 
     }
+
     @Cacheable(value = "courtCache",key = "#courtId",cacheManager = "cacheManager")
     public Court selectOneCourt(Long courtId) throws InterruptedException {
         LOG.info("this is in the courtCache in Cache method...");
@@ -88,7 +93,7 @@ public class UserService {
         courtTemplate.setId(courtId);
         LOG.info("selecting "+"court "+courtId+"from db...");
         Long start = System.currentTimeMillis();
-        Thread.sleep(10000);
+        Thread.sleep(3000);
         Long end = System.currentTimeMillis();
         LOG.info("thread running for "+String.valueOf(end-start)+"mill seconds");
         return courtMapper.selectOne(courtTemplate);

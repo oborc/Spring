@@ -36,11 +36,11 @@ public class UserController {
 
     @GetMapping(value = "/getUserByAgeAndName",produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Object> getOneUser(@RequestParam("age") Integer age, @RequestParam("name") String name) throws InterruptedException {
-        List<Object> users =  userService.selectOneUser(age,name);
 
+        List<Object> users =  userService.selectOneUser(age,name);
         User user =(User) users.get(0);
-        userService.cacheCourt(user);
         LOG.info("thi is user"+user.getId()+" "+user.getName());
+        userService.cacheCourt(user);
         return users;
     }
 
