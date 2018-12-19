@@ -50,23 +50,23 @@ public class UserService {
         return value;
     }
 
-//    @Async
-//    public void cacheCourt(User user) throws InterruptedException {
-//        ConcurrentMapCache courtCache = (ConcurrentMapCache) myCacheManager.getCache("courtCache");
-//        Court courtTemplate = new Court();
-//
-//        courtTemplate.setUserId(userMapper.selectOne(user).getId());
-//        List<Court> courts = courtMapper.select(courtTemplate);
-//        for (Court court : courts) {
-//            if (courtCache.get(court.getId(), Court.class) != null) {
-//                continue;
-//            }
-//            Court courtTobeCached = selectOneCourt(court.getId());
-//            courtCache.put(court.getId(), courtTobeCached);
-//            LOG.info("in cache court async method ...");
-//        }
-//
-//    }
+    @Async
+    public void cacheCourt(User user) {
+        ConcurrentMapCache courtCache = (ConcurrentMapCache) myCacheManager.getCache("courtCache");
+        Court courtTemplate = new Court();
+
+        courtTemplate.setUserId(userMapper.selectOne(user).getId());
+        List<Court> courts = courtMapper.select(courtTemplate);
+        for (Court court : courts) {
+            if (courtCache.get(court.getId(), Court.class) != null) {
+                continue;
+            }
+            Court courtTobeCached = selectOneCourt(court.getId());
+            courtCache.put(court.getId(), courtTobeCached);
+            LOG.info("in cache court async method ...");
+        }
+
+    }
 
     @Cacheable(value = "courtCache", key = "#courtId", cacheManager = "cacheManager")
     public Court selectOneCourt(Long courtId) {
