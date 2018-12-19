@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class BeanConfig {
 
     @Bean
-    public CacheManager cacheManager(){
+    public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(new ConcurrentMapCache("userCache"),
                 new ConcurrentMapCache("courtCache")));

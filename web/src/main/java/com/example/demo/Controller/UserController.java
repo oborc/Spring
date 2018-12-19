@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 
+import com.example.demo.AsyncCourt.GetCourtThread;
 import com.example.demo.domain.Court;
 import com.example.demo.domain.User;
 import com.example.demo.mapper.CourtMapper;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping
@@ -34,13 +38,21 @@ public class UserController {
 
     private final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping(value = "/getUserByAgeAndName",produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Object> getOneUser(@RequestParam("age") Integer age, @RequestParam("name") String name) throws InterruptedException {
+    @GetMapping(value = "/getUserById",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Object> getOneUser(@RequestParam("userId") Long userId)  {
 
-        List<Object> users =  userService.selectOneUser(age,name);
+        List<Object> users =  userService.selectOneUser(userId);
         User user =(User) users.get(0);
         LOG.info("thi is user"+user.getId()+" "+user.getName());
-        userService.cacheCourt(user);
+        myCacheManager.getCache("courtCache");
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5,10,1000,TimeUnit.MILLISECONDS,new LinkedBlockingDeque<>());
+        GetCourtThread thread = new GetCourtThread();
+        thread.setUser(user);
+        thread.setCourtMapper(courtMapper);
+        thread.setMyCacheManager(myCacheManager);
+        thread.setUserMapper(userMapper);
+        thread.setUserService(userService);
+        threadPoolExecutor.execute(thread);
         return users;
     }
 

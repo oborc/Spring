@@ -38,64 +38,51 @@ public class UserService {
     private final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
 
-    @Cacheable(value = "userCache",key = "#age+':'+#name",cacheManager = "cacheManager")
-    public List<Object> selectOneUser(Integer age,String name) throws InterruptedException {
-        ConcurrentMapCache testCache = (ConcurrentMapCache)myCacheManager.getCache("userCache");
-        ConcurrentMap<String,User> cacheMap =(ConcurrentMap) testCache.getNativeCache();
-        LOG.info("selecting "+"user "+name+"from db...");
+    @Cacheable(value = "userCache", key = "#age+':'+#name", cacheManager = "cacheManager")
+    public List<Object> selectOneUser(Long userId) {
+        ConcurrentMapCache testCache = (ConcurrentMapCache) myCacheManager.getCache("userCache");
+        ConcurrentMap<String, User> cacheMap = (ConcurrentMap) testCache.getNativeCache();
         List<Object> value = new ArrayList<>();
         User user = new User();
-        user.setName(name);
-        user.setAge(age);
+        user.setId(userId);
         value.add(userMapper.selectOne(user));
         value.add(new Date());
+        return value;
+    }
 
-        //court related
-//        ConcurrentMapCache courtCache = (ConcurrentMapCache)myCacheManager.getCache("courtCache");
+//    @Async
+//    public void cacheCourt(User user) throws InterruptedException {
+//        ConcurrentMapCache courtCache = (ConcurrentMapCache) myCacheManager.getCache("courtCache");
 //        Court courtTemplate = new Court();
 //
 //        courtTemplate.setUserId(userMapper.selectOne(user).getId());
 //        List<Court> courts = courtMapper.select(courtTemplate);
-//        for(Court court:courts)
-//        {
+//        for (Court court : courts) {
+//            if (courtCache.get(court.getId(), Court.class) != null) {
+//                continue;
+//            }
 //            Court courtTobeCached = selectOneCourt(court.getId());
-//            courtCache.put(court.getId(),courtTobeCached);
+//            courtCache.put(court.getId(), courtTobeCached);
+//            LOG.info("in cache court async method ...");
 //        }
+//
+//    }
 
-        return value;
-    }
-
-    @Async
-    public void cacheCourt(User user) throws InterruptedException {
-        ConcurrentMapCache courtCache = (ConcurrentMapCache)myCacheManager.getCache("courtCache");
-        Court courtTemplate = new Court();
-
-        courtTemplate.setUserId(userMapper.selectOne(user).getId());
-        List<Court> courts = courtMapper.select(courtTemplate);
-        for(Court court:courts)
-        {
-            if(courtCache.get(court.getId(),Court.class)!=null)
-            {
-                continue;
-            }
-            Court courtTobeCached = selectOneCourt(court.getId());
-            courtCache.put(court.getId(),courtTobeCached);
-            LOG.info("in cache court async method ...");
-        }
-
-    }
-
-    @Cacheable(value = "courtCache",key = "#courtId",cacheManager = "cacheManager")
-    public Court selectOneCourt(Long courtId) throws InterruptedException {
+    @Cacheable(value = "courtCache", key = "#courtId", cacheManager = "cacheManager")
+    public Court selectOneCourt(Long courtId) {
         LOG.info("this is in the courtCache in Cache method...");
         Court courtTemplate = new Court();
         Cache cacheCourt = myCacheManager.getCache("courtCache");
         courtTemplate.setId(courtId);
-        LOG.info("selecting "+"court "+courtId+"from db...");
+        LOG.info("selecting " + "court " + courtId + "from db...");
         Long start = System.currentTimeMillis();
-        Thread.sleep(3000);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Long end = System.currentTimeMillis();
-        LOG.info("thread running for "+String.valueOf(end-start)+"mill seconds");
+        LOG.info("thread running for " + String.valueOf(end - start) + "mill seconds");
         return courtMapper.selectOne(courtTemplate);
     }
 
