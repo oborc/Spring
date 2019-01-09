@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.aop.PrintLog;
 import com.example.demo.domain.Court;
 import com.example.demo.domain.User;
 import com.example.demo.mapper.CourtMapper;
@@ -38,6 +39,7 @@ public class UserService {
     private final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
 
+    @PrintLog(log = "this is select user method")
     @Cacheable(value = "userCache",key = "#age+':'+#name",cacheManager = "cacheManager")
     public List<Object> selectOneUser(Integer age,String name) throws InterruptedException {
         ConcurrentMapCache testCache = (ConcurrentMapCache)myCacheManager.getCache("userCache");
