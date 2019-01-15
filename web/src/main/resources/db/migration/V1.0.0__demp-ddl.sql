@@ -13,3 +13,11 @@ create table court(
 primary key(`id`),
 foreign key (`user_id`) references `user` (`id`)
 )engine=innodb auto_increment=1 default charset=utf8 ;
+
+create table test_unique(
+`id` bigint(20) unsigned auto_increment,
+`first_name` varchar (40) not null default '',
+`last_name` varchar(40) not null default '',
+primary key(`id`),
+unique (last_name,first_name)
+)engine=innodb auto_increment=1 default charset=utf8 ;

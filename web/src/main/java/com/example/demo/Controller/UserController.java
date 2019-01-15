@@ -45,8 +45,8 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/getCourtById",produces = MediaType.APPLICATION_JSON_VALUE)
-    public Court getOneCourt(@RequestParam("courtId") Long courtId) throws InterruptedException {
+    @GetMapping(value = "/getCourtById/{courtId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public Court getOneCourt(@PathVariable("courtId") Long courtId) throws InterruptedException {
         return userService.selectOneCourt(courtId);
     }
 }
